@@ -146,3 +146,4 @@ function storecut(data){
     var cdata = data.replace(data,temp);
     deleteFromStorage(data,','+temp);
 }
+//last line
