@@ -8,6 +8,7 @@ var editdata = "";
 function empty(){
     inp.value = "";
 }
+var cut = false;
 // at first time;
 var stored = localStorage.getItem("todo");
 if(stored !== null){
@@ -20,6 +21,12 @@ arr.forEach((str)=>{
     }else{
         var sdata = str.replaceAll("|||||",",");
         // console.log(sdata);
+        if(sdata[sdata.length-1] === '~'){
+            cut = true;
+            console.log("true");// first
+            sdata = sdata.substring(0,sdata.length-1);
+            console.log(sdata)
+        }
         createAndAppend(sdata);
     }
     
@@ -43,13 +50,24 @@ function createAndAppend(data){
    var d = document.createElement("div");
    d.setAttribute("id","id"+count);
    var s = document.createElement("span");
-   s.textContent = data.replaceAll('|||||',",");
+   var dl = document.createElement("del");
+   if(cut){
+    dl.textContent = data.replaceAll('|||||',",");
+    s.appendChild(dl);
+   }else{
+    s.textContent = data.replaceAll('|||||',",");
+   }
    s.setAttribute("id","sid"+count);
    var box = document.createElement("input");
    box.setAttribute("type","checkbox");
    box.setAttribute("id","bid"+count)
    box.setAttribute("class","check")
    box.setAttribute('onclick','cutMe(bid'+count+',sid'+count+")");
+   if(cut){
+    box.setAttribute("checked","true");
+    cut = false;
+   }
+   
    var remove = document.createElement("button");
    remove.setAttribute("onclick","deleteMe(id"+count+")")
    var forr = document.createTextNode("X");
@@ -85,17 +103,21 @@ function deleteMe(cid){
     var text = cid.innerText;
     text = text.substring(0,text.length-7);
     text = text.replaceAll(',',"|||||");
-    console.log(text);
+    var pos2 = text + '~';
     div.removeChild(cid);
+    deleteFromStorage(pos2,"");
     deleteFromStorage(text,"")
 }
 function cutMe(bid,sid){
     var work = sid.innerText;
+    console.log(work)
     if(bid.checked){
         var del = document.createElement("del");
         sid.innerText = "";
         del.innerText = work;
-        sid.appendChild(del); 
+        sid.appendChild(del);
+        console.log(work);
+        storecut(work);
     }else{
         sid.innerText=work;
     }
@@ -118,4 +140,9 @@ function Afteredit(editid,data,editdata){
 }
 function removeComma(data){
     return data.replaceAll(",","|||||");
+}
+function storecut(data){
+    var temp = data + '~';
+    var cdata = data.replace(data,temp);
+    deleteFromStorage(data,','+temp);
 }
